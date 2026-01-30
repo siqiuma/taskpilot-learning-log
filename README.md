@@ -23,3 +23,9 @@ Explicit non-responsibilities (source of truth = Scheduler DB)
 ### One sentence
 
 > "TaskPilot owns the user-facing task record and the cross-system link, while the scheduler is the source of truth for execution state; TaskPilot only queries/forwards and never mutates execution status."
+
+**Cancel execution is idempotent.**\
+`PUT /api/tasks/{id}/execution/cancel` returns `204 No Content` if the scheduler task is canceled **or already canceled**.\
+If the scheduler task is in a terminal non-cancelable state (e.g., `SUCCEEDED`), TaskPilot returns `409 Conflict` with the scheduler's reason.
+
+TaskPilot is a façade over the scheduler for execution operations; it does not mutate execution state itself, and it preserves scheduler failure semantics (409/404) while normalizing success to 204.
